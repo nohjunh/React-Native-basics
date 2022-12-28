@@ -27,6 +27,7 @@ function Pressable(props) {
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
+  const [toDos, setToDos] = useState({}); // hashMap
   const travel = () => {
     setWorking(false);
     setText("");
@@ -38,8 +39,24 @@ export default function App() {
   // payload = Data Transmitted
   const onChangeText = (payload) => {
     setText(payload);
-    console.log(payload);
+    //console.log(payload);
   };
+  const addToDo = () => {
+    if (text === "") {
+      return;
+    }
+    const newToDo = Object.assign({}, toDos, {
+      [Date.now()]: { text, work: working },
+    });
+    setToDos(newToDo);
+    setText("");
+  };
+
+  /*
+  useEffect(() => {
+    console.log(toDos);
+  }, [toDos]);
+  */
 
   return (
     <View style={styles.container}>
@@ -61,9 +78,11 @@ export default function App() {
         </Pressable>
       </View>
       <TextInput
+        onSubmitEditing={addToDo}
         style={styles.input}
         onChangeText={onChangeText}
         value={text}
+        returnKeyType="done"
         placeholder={working ? "Add a To Do" : "Where do you want to go ?"}
       />
     </View>
