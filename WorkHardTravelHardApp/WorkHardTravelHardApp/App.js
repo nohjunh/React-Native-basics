@@ -1,12 +1,12 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import { React, useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   Pressable as PressableRaw,
+  TextInput,
 } from "react-native";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 import { theme } from "./colors";
 
 function Pressable(props) {
@@ -25,17 +25,47 @@ function Pressable(props) {
 }
 
 export default function App() {
+  const [working, setWorking] = useState(true);
+  const [text, setText] = useState("");
+  const travel = () => {
+    setWorking(false);
+    setText("");
+  };
+  const work = () => {
+    setWorking(true);
+    setText("");
+  };
+  // payload = Data Transmitted
+  const onChangeText = (payload) => {
+    setText(payload);
+    console.log(payload);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
       <View style={styles.header}>
-        <Pressable>
-          <Text style={styles.btnText}>Work</Text>
+        <Pressable onPress={work}>
+          <Text
+            style={{ ...styles.btnText, color: working ? "white" : theme.grey }}
+          >
+            Work
+          </Text>
         </Pressable>
-        <Pressable>
-          <Text style={styles.btnText}>Travel</Text>
+        <Pressable onPress={travel}>
+          <Text
+            style={{ ...styles.btnText, color: working ? theme.grey : "white" }}
+          >
+            Travel
+          </Text>
         </Pressable>
       </View>
+      <TextInput
+        style={styles.input}
+        onChangeText={onChangeText}
+        value={text}
+        placeholder={working ? "Add a To Do" : "Where do you want to go ?"}
+      />
     </View>
   );
 }
@@ -54,6 +84,13 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 38,
     fontWeight: "600",
-    color: "white",
+  },
+  input: {
+    backgroundColor: "white",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    marginTop: 20,
+    fontSize: 17,
   },
 });
