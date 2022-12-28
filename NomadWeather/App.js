@@ -8,9 +8,21 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { Fontisto } from "@expo/vector-icons";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window"); // object안에 있는 width를 가져오고 이걸 SCREEN_WIDTH라 칭함
 const API_KEY = process.env.REACT_APP_OPENWEATHERMAP_API_KEY; // .env 파일에 저장한 API_KEY를 가져옴
+
+const icons = {
+  Clouds: "cloudy",
+  Clear: "day-sunny",
+  Atmosphere: "cloudy-gusts",
+  Snow: "snow",
+  Rain: "rain",
+  Drizzle: "rain",
+  Thunderstorm: "lightning",
+};
 
 export default function App() {
   const [city, setCity] = useState("Loading...");
@@ -43,6 +55,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="light" />
       <View style={styles.city}>
         <Text style={styles.cityName}>{city}</Text>
       </View>
@@ -53,7 +66,7 @@ export default function App() {
         contentContainerStyle={styles.weather}
       >
         {days.length === 0 ? (
-          <View style={styles.day}>
+          <View style={{ ...styles.day, alignItems: "center" }}>
             <ActivityIndicator
               style={{ marginTop: 10 }}
               color="white"
@@ -63,9 +76,25 @@ export default function App() {
         ) : (
           days.map((day, index) => (
             <View key={index} style={styles.day}>
-              <Text style={styles.temp}>
-                {parseFloat(day.temp.day).toFixed(1)}°C
-              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  width: "100%",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.temp}>
+                  {parseFloat(day.temp.day).toFixed(1)}°C
+                </Text>
+                <Fontisto
+                  style={{ marginTop: 60, marginRight: 20 }}
+                  name={icons[day.weather[0].main]}
+                  size={60}
+                  color="white"
+                />
+              </View>
+
               <Text style={styles.description}>{day.weather[0].main}</Text>
               <Text style={styles.tinyText}>{day.weather[0].description}</Text>
             </View>
@@ -89,22 +118,30 @@ const styles = StyleSheet.create({
   cityName: {
     fontSize: 68,
     fontWeight: "500",
+    color: "white",
   },
   weather: {},
   day: {
     width: SCREEN_WIDTH,
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-start",
+    paddingHorizontal: 20,
   },
   temp: {
+    color: "white",
     marginTop: 50,
-    fontSize: 140,
+    fontSize: 80,
   },
   description: {
     marginTop: -20,
-    fontSize: 60,
+    fontSize: 50,
+    color: "white",
+    fontWeight: "500",
   },
   tinyText: {
     fontSize: 20,
+    marginTop: -5,
+    color: "white",
+    fontWeight: "500",
   },
 });
