@@ -17,7 +17,7 @@ import { theme } from "./colors";
 import { Fontisto } from "@expo/vector-icons";
 
 const STORAGE_ToDos_KEY = "@toDos";
-const LAST_SESSION_KEY = "@lastSession";
+const LAST_CATEGORY_KEY = "@lastCategory";
 
 function Pressable(props) {
   return (
@@ -37,23 +37,23 @@ function Pressable(props) {
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
-  const [lastSession, setLastSession] = useState();
+  const [lastCategory, setlastCategory] = useState();
   const [toDos, setToDos] = useState({}); // hashMap
 
   useEffect(() => {
-    // only first rendering -> toDosList load
-    lastSessionStart();
+    // only first rendering -> Load ToDoList
+    lastCategoryStart();
     loadToDos();
   }, []);
 
   const travel = () => {
     setWorking(false);
-    saveLastSession("travel");
+    saveLastCategory("travel");
     setText("");
   };
   const work = () => {
     setWorking(true);
-    saveLastSession("work");
+    saveLastCategory("work");
     setText("");
   };
 
@@ -79,8 +79,8 @@ export default function App() {
     ]);
   };
 
-  const saveLastSession = async (toSave) => {
-    await AsyncStorage.setItem(LAST_SESSION_KEY, JSON.stringify(toSave));
+  const saveLastCategory = async (toSave) => {
+    await AsyncStorage.setItem(LAST_CATEGORY_KEY, JSON.stringify(toSave));
   };
 
   const saveToDos = async (toSave) => {
@@ -92,8 +92,8 @@ export default function App() {
     st == null ? null : setToDos(JSON.parse(st));
   };
 
-  const lastSessionStart = async () => {
-    const st = await AsyncStorage.getItem(LAST_SESSION_KEY);
+  const lastCategoryStart = async () => {
+    const st = await AsyncStorage.getItem(LAST_CATEGORY_KEY);
     st == null
       ? null
       : JSON.parse(st) === "work"
