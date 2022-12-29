@@ -8,11 +8,13 @@ import {
   TextInput,
   ScrollView,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
-//https://www.npmjs.com/package/@react-native-async-storage/async-storage
+// https://www.npmjs.com/package/@react-native-async-storage/async-storage
 // expo install @react-native-async-storage/async-storage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { theme } from "./colors";
+import { Fontisto } from "@expo/vector-icons";
 
 const STORAGE_KEY = "@toDos";
 
@@ -53,6 +55,22 @@ export default function App() {
   const onChangeText = (payload) => {
     setText(payload);
     //console.log(payload);
+  };
+
+  const deleteToDo = (key) => {
+    Alert.alert("Delete To Do", "Are you sure ?", [
+      { text: "Cancel" },
+      {
+        text: "I'm Sure",
+        style: "destructive",
+        onPress: () => {
+          const newToDos = { ...toDos };
+          delete newToDos[key];
+          setToDos(newToDos);
+          saveToDos(newToDos);
+        },
+      },
+    ]);
   };
 
   const saveToDos = async (toSave) => {
@@ -103,12 +121,25 @@ export default function App() {
         }
       />
       <ScrollView>
-        {Object.keys(toDos).map((key) =>
-          toDos[key].working === working ? (
-            <View style={styles.toDo} key={key}>
-              <Text style={styles.toDoText}>{toDos[key].text}</Text>
-            </View>
-          ) : null
+        {toDos.length === 0 ? (
+          <View>
+            <ActivityIndicator
+              style={{ marginTop: 10 }}
+              color="white"
+              size="large"
+            />
+          </View>
+        ) : (
+          Object.keys(toDos).map((key) =>
+            toDos[key].working === working ? (
+              <View style={styles.toDo} key={key}>
+                <Text style={styles.toDoText}>{toDos[key].text}</Text>
+                <Pressable onPress={() => deleteToDo(key)}>
+                  <Fontisto name="trash" size={18} color={theme.grey} />
+                </Pressable>
+              </View>
+            ) : null
+          )
         )}
       </ScrollView>
     </View>
@@ -145,6 +176,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 18,
+    flexDirection: "row",
+    alignItem: "center",
+    justifyContent: "space-between",
   },
   toDoText: {
     color: "white",
