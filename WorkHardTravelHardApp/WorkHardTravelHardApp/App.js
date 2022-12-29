@@ -16,7 +16,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { theme } from "./colors";
 import { Fontisto } from "@expo/vector-icons";
 
-const STORAGE_KEY = "@toDos";
+const STORAGE_ToDos_KEY = "@toDos";
+const LAST_SESSION_KEY = "@lastSession";
 
 function Pressable(props) {
   return (
@@ -36,21 +37,26 @@ function Pressable(props) {
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
+  const [lastSession, setLastSession] = useState();
   const [toDos, setToDos] = useState({}); // hashMap
 
   useEffect(() => {
     // only first rendering -> toDosList load
+    lastSessionStart();
     loadToDos();
   }, []);
 
   const travel = () => {
     setWorking(false);
+    saveLastSession("travel");
     setText("");
   };
   const work = () => {
     setWorking(true);
+    saveLastSession("work");
     setText("");
   };
+
   // payload = Data Transmitted
   const onChangeText = (payload) => {
     setText(payload);
@@ -73,13 +79,26 @@ export default function App() {
     ]);
   };
 
+  const saveLastSession = async (toSave) => {
+    await AsyncStorage.setItem(LAST_SESSION_KEY, JSON.stringify(toSave));
+  };
+
   const saveToDos = async (toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    await AsyncStorage.setItem(STORAGE_ToDos_KEY, JSON.stringify(toSave));
   };
 
   const loadToDos = async () => {
-    const st = await AsyncStorage.getItem(STORAGE_KEY);
+    const st = await AsyncStorage.getItem(STORAGE_ToDos_KEY);
     st == null ? null : setToDos(JSON.parse(st));
+  };
+
+  const lastSessionStart = async () => {
+    const st = await AsyncStorage.getItem(LAST_SESSION_KEY);
+    st == null
+      ? null
+      : JSON.parse(st) === "work"
+      ? setWorking(true)
+      : setWorking(false);
   };
 
   const addToDo = async () => {
