@@ -15,6 +15,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { theme } from "./colors";
 import { Fontisto } from "@expo/vector-icons";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 const STORAGE_ToDos_KEY = "@toDos";
 const LAST_CATEGORY_KEY = "@lastCategory";
@@ -37,6 +38,7 @@ function Pressable(props) {
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
+  const [completed, setCompleted] = useState(false);
   const [lastCategory, setlastCategory] = useState();
   const [toDos, setToDos] = useState({}); // hashMap
 
@@ -61,6 +63,13 @@ export default function App() {
   const onChangeText = (payload) => {
     setText(payload);
     //console.log(payload);
+  };
+
+  const onChangeCompleted = (key) => {
+    const newToDos = { ...toDos };
+    newToDos[key].completed = !newToDos[key].completed;
+    setToDos(newToDos);
+    saveToDos(newToDos);
   };
 
   const deleteToDo = (key) => {
@@ -105,7 +114,7 @@ export default function App() {
     if (text === "") {
       return;
     }
-    const newToDos = { ...toDos, [Date.now()]: { text, working } };
+    const newToDos = { ...toDos, [Date.now()]: { text, working, completed } };
     setToDos(newToDos);
     await saveToDos(newToDos);
     setText("");
@@ -152,7 +161,40 @@ export default function App() {
           Object.keys(toDos).map((key) =>
             toDos[key].working === working ? (
               <View style={styles.toDo} key={key}>
-                <Text style={styles.toDoText}>{toDos[key].text}</Text>
+                {toDos[key].completed ? (
+                  <>
+                    <Pressable onPress={() => onChangeCompleted(key)}>
+                      <Fontisto
+                        name="checkbox-active"
+                        size={18}
+                        color={theme.grey}
+                      />
+                    </Pressable>
+                    <Text
+                      style={{
+                        ...styles.toDoText,
+                        marginRight: 180,
+                        textDecorationLine: "line-through",
+                      }}
+                    >
+                      {toDos[key].text}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Pressable onPress={() => onChangeCompleted(key)}>
+                      <Fontisto
+                        name="checkbox-passive"
+                        size={18}
+                        color={theme.grey}
+                      />
+                    </Pressable>
+
+                    <Text style={{ ...styles.toDoText, marginRight: 180 }}>
+                      {toDos[key].text}
+                    </Text>
+                  </>
+                )}
                 <Pressable onPress={() => deleteToDo(key)}>
                   <Fontisto name="trash" size={18} color={theme.grey} />
                 </Pressable>
