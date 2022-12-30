@@ -10,6 +10,7 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Alert,
+  Platform,
 } from "react-native";
 // https://www.npmjs.com/package/@react-native-async-storage/async-storage
 // expo install @react-native-async-storage/async-storage
@@ -88,19 +89,29 @@ export default function App() {
   };
 
   const deleteToDo = (key) => {
-    Alert.alert("Delete To Do", "Are you sure ?", [
-      { text: "Cancel" },
-      {
-        text: "I'm Sure",
-        style: "destructive",
-        onPress: () => {
-          const newToDos = { ...toDos };
-          delete newToDos[key];
-          setToDos(newToDos);
-          saveToDos(newToDos);
+    if (Platform.OS === "web") {
+      const ok = confirm("Do you want to delete this To Do?");
+      if (ok) {
+        const newToDos = { ...toDos };
+        delete newToDos[key];
+        setToDos(newToDos);
+        saveToDos(newToDos);
+      }
+    } else {
+      Alert.alert("Delete To Do", "Are you sure ?", [
+        { text: "Cancel" },
+        {
+          text: "I'm Sure",
+          style: "destructive",
+          onPress: () => {
+            const newToDos = { ...toDos };
+            delete newToDos[key];
+            setToDos(newToDos);
+            saveToDos(newToDos);
+          },
         },
-      },
-    ]);
+      ]);
+    }
   };
 
   const saveLastCategory = async (toSave) => {
@@ -140,14 +151,22 @@ export default function App() {
       <View style={styles.header}>
         <Pressable onPress={work}>
           <Text
-            style={{ ...styles.btnText, color: working ? "white" : theme.grey }}
+            style={{
+              fontSize: 38,
+              fontWeight: "600",
+              color: working ? "white" : theme.grey,
+            }}
           >
             Work
           </Text>
         </Pressable>
         <Pressable onPress={travel}>
           <Text
-            style={{ ...styles.btnText, color: working ? theme.grey : "white" }}
+            style={{
+              fontSize: 38,
+              fontWeight: "600",
+              color: working ? theme.grey : "white",
+            }}
           >
             Travel
           </Text>
@@ -245,10 +264,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 100,
   },
-  btnText: {
-    fontSize: 38,
-    fontWeight: "600",
-  },
+  btnText: {},
   input: {
     backgroundColor: "white",
     paddingVertical: 15,
