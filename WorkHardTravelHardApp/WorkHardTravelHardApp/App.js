@@ -6,6 +6,7 @@ import {
   View,
   Pressable as PressableRaw,
   TextInput,
+  Dimensions,
   ScrollView,
   TouchableWithoutFeedback,
   Alert,
@@ -16,9 +17,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { theme } from "./colors";
 import { Fontisto } from "@expo/vector-icons";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import prompt from "@powerdesigninc/react-native-prompt";
 
 const STORAGE_ToDos_KEY = "@toDos";
 const LAST_CATEGORY_KEY = "@lastCategory";
+const { width: SCREEN_WIDTH } = Dimensions.get("window"); // object안에 있는 width를 가져오고 이걸 SCREEN_WIDTH라 칭함
 
 function Pressable(props) {
   return (
@@ -70,6 +73,18 @@ export default function App() {
     newToDos[key].completed = !newToDos[key].completed;
     setToDos(newToDos);
     saveToDos(newToDos);
+  };
+
+  const modifyToDo = (key) => {
+    prompt("Text to modify", null, (input) => {
+      if (input === null) {
+        return;
+      }
+      const newToDos = { ...toDos };
+      newToDos[key].text = input;
+      setToDos(newToDos);
+      saveToDos(newToDos);
+    });
   };
 
   const deleteToDo = (key) => {
@@ -173,7 +188,6 @@ export default function App() {
                     <Text
                       style={{
                         ...styles.toDoText,
-                        marginRight: 180,
                         textDecorationLine: "line-through",
                       }}
                     >
@@ -190,14 +204,27 @@ export default function App() {
                       />
                     </Pressable>
 
-                    <Text style={{ ...styles.toDoText, marginRight: 180 }}>
+                    <Text style={{ ...styles.toDoText }}>
                       {toDos[key].text}
                     </Text>
                   </>
                 )}
-                <Pressable onPress={() => deleteToDo(key)}>
-                  <Fontisto name="trash" size={18} color={theme.grey} />
-                </Pressable>
+                <View
+                  style={{
+                    flexDirection: "row",
+                  }}
+                >
+                  <Fontisto
+                    onPress={() => modifyToDo(key)}
+                    style={{ marginRight: 15 }}
+                    name="redo"
+                    size={18}
+                    color={theme.grey}
+                  />
+                  <Pressable onPress={() => deleteToDo(key)}>
+                    <Fontisto name="trash" size={18} color={theme.grey} />
+                  </Pressable>
+                </View>
               </View>
             ) : null
           )
@@ -242,8 +269,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   toDoText: {
+    width: SCREEN_WIDTH / 2,
     color: "white",
     fontSize: 16,
     fontWeight: "500",
+    marginLeft: 20,
   },
 });
